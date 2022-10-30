@@ -1,0 +1,2 @@
+go to fluttercontactpicker build.gradle and classpath 'com.android.tools.build:gradle:7.1.2'
+go to fluttercontactpicker gradle-wrapper.properties and distributionUrl=https\://services.gradle.org/distributions/gradle-7.4-all.zip
