@@ -1,3 +1,7 @@
+// ignore_for_file: avoid_function_literals_in_foreach_calls, depend_on_referenced_packages
+
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -120,8 +124,18 @@ class Grooha with ChangeNotifier {
     dbman.deleteGrooha(g1.name);
 
     updateLocal();
-    // print(_oldG);
+    // log(_oldG);
     // _grooha.remove(g1);
+    notifyListeners();
+  }
+
+  reOrderList(List<Group> newG) {
+    newG.forEach((element) {
+      _oldG = _grooha;
+      DataBaseMan dbman = DataBaseMan();
+      dbman.deleteGrooha(element.name);
+      dbman.insertGrooha(element);
+    });
     notifyListeners();
   }
 
@@ -135,11 +149,11 @@ class DataBaseMan {
   late Future<Database> database;
   Future<void> firstInit() async {
     WidgetsFlutterBinding.ensureInitialized();
-    print("sakht db1");
+    log("sakht db1");
     database = openDatabase(
       join(await getDatabasesPath(), 'soorena_database.db'),
       onCreate: (db, version) async {
-        print("sakht db");
+        log("sakht db");
         await db.execute(
           "CREATE TABLE grooha(name TEXT PRIMARY KEY)",
         );
@@ -280,7 +294,7 @@ class DataBaseMan {
         "gname": maps[i]['gname'],
       };
     });
-    // print(list);
+    // log(list);
     return (list);
   }
 
@@ -303,10 +317,8 @@ class DataBaseMan {
     });
     Map<String, String> newEntry = {"aname": p.name, "gname": g.name};
     if (list.where((x) {
-          return x["aname"] == newEntry["aname"] &&
-              x["gname"] == newEntry["gname"];
-        }).length !=
-        0) {
+      return x["aname"] == newEntry["aname"] && x["gname"] == newEntry["gname"];
+    }).isNotEmpty) {
       await db.delete(
         'afradtogrooha',
         where: "aname = ? and gname=?",
@@ -376,7 +388,7 @@ class DataBaseMan {
         "number": maps[i]['number'],
       };
     });
-    // print(list);
+    // log(list);
     return (list);
   }
 
@@ -406,15 +418,15 @@ class DataBaseMan {
     final listofx = list.where((x) {
       return x["aname"] == newEntry["aname"] && x["gname"] == newEntry["gname"];
     });
-    if (listofx.length != 0) {
-      print("dell");
+    if (listofx.isNotEmpty) {
+      log("dell");
       await db.delete(
         'afradtolabelha',
         where: "aname = ? and gname=?",
         whereArgs: [p.name, g.name],
       );
       if (listofx.first["number"] != n) {
-        print("dellinsert");
+        log("dellinsert");
         await db.insert(
           'afradtolabelha',
           newEntry,
@@ -422,7 +434,7 @@ class DataBaseMan {
         );
       }
     } else {
-      print("insert");
+      log("insert");
       await db.insert(
         'afradtolabelha',
         newEntry,
@@ -621,7 +633,7 @@ class Labelha with ChangeNotifier {
   Labelha() {
     _afradgroohatolabelha = updateLocal();
   }
-  List<Label> _labelha = [
+  final List<Label> _labelha = [
     Label(1, Colors.greenAccent[700]!, ""),
     Label(2, Colors.orangeAccent[700]!, ""),
     Label(3, Colors.red[600]!, ""),
@@ -638,7 +650,7 @@ class Labelha with ChangeNotifier {
 
   List<Map<String, dynamic>> updateLocal() {
     DataBaseMan dbman = DataBaseMan();
-    print("updated");
+    log("updated");
     dbman.fetchAfradtoLabelha().then((val) {
       _afradgroohatolabelha = val;
       notifyListeners();

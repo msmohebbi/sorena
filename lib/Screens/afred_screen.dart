@@ -8,222 +8,234 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../Models/afradc.dart';
+import '../index.dart';
 
 class AfradScreen extends StatefulWidget {
-  AfradScreen({Key? key}) : super(key: key);
+  const AfradScreen({Key? key}) : super(key: key);
   @override
-  _AfradScreenState createState() => _AfradScreenState();
+  AfradScreenState createState() => AfradScreenState();
 }
 
-class _AfradScreenState extends State<AfradScreen> {
+class AfradScreenState extends State<AfradScreen> {
   @override
   Widget build(BuildContext context) {
     var number1 = Provider.of<Afrad>(context).afradd;
     var groohaa = Provider.of<Grooha>(context).grooha;
 
-    return number1.length == 0
-        ? Center(
-            child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "فردی برای نمایش وجود ندارد",
-                style: TextStyle(fontSize: 16),
-              ),
-              Text(
-                "برای ساخت فرد روی دکمه زیر کلیک کنید",
-                style: TextStyle(fontSize: 10),
-              ),
-            ],
-          ))
-        : SingleChildScrollView(
-            physics: BouncingScrollPhysics(),
-            child: Column(
-              children: number1.map((p) {
-                // int pindex = number1.indexOf(p);
-                return Container(
-                  margin: EdgeInsets.only(bottom: 1),
-                  child: ListTile(
-                    tileColor: Colors.tealAccent[700],
-                    trailing: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.33,
-                          // height: ,
-                          child: Text(
-                            p.name,
-                            style: TextStyle(fontSize: 16, color: Colors.white),
-                            textAlign: TextAlign.right,
-                            softWrap: true,
-                            overflow: TextOverflow.ellipsis,
-                            textDirection: TextDirection.rtl,
+    // ignore: prefer_is_empty
+    return WillPopScope(
+      onWillPop: () async {
+        Provider.of<Index>(context, listen: false).changeIndex(0);
+        return false;
+      },
+      child: number1.length == 0
+          ? Center(
+              child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Text(
+                  "فردی برای نمایش وجود ندارد",
+                  style: TextStyle(fontSize: 16),
+                ),
+                Text(
+                  "برای ساخت فرد روی دکمه زیر کلیک کنید",
+                  style: TextStyle(fontSize: 10),
+                ),
+              ],
+            ))
+          : SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: number1.map((p) {
+                  // int pindex = number1.indexOf(p);
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 1),
+                    child: ListTile(
+                      tileColor: Colors.tealAccent[700],
+                      trailing: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.33,
+                            // height: ,
+                            child: Text(
+                              p.name,
+                              style: const TextStyle(
+                                  fontSize: 16, color: Colors.white),
+                              textAlign: TextAlign.right,
+                              softWrap: true,
+                              overflow: TextOverflow.ellipsis,
+                              textDirection: TextDirection.rtl,
+                            ),
                           ),
-                        ),
-                        Text(
-                          p.phone,
-                          style: TextStyle(color: Colors.white60),
-                          textAlign: TextAlign.left,
-                          textDirection: TextDirection.ltr,
-                        ),
-                      ],
-                    ),
-                    title: Row(
-                      children: [
-                        PopupMenuButton(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Icon(Icons.keyboard_arrow_down_outlined),
+                          Text(
+                            p.phone,
+                            style: const TextStyle(color: Colors.white60),
+                            textAlign: TextAlign.left,
+                            textDirection: TextDirection.ltr,
                           ),
-                          tooltip: "اضافه کردن به گروه",
-                          // icon: ,
-                          onSelected: (value) {
-                            Provider.of<Afrad>(context, listen: false)
-                                .addremovetoGroup(value[0] as Person,
-                                    value[1] as Group, context);
-                          },
+                        ],
+                      ),
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          PopupMenuButton(
+                            tooltip: "اضافه کردن به گروه",
+                            // icon: ,
+                            onSelected: (value) {
+                              Provider.of<Afrad>(context, listen: false)
+                                  .addremovetoGroup(value[0] as Person,
+                                      value[1] as Group, context);
+                            },
 
-                          itemBuilder: (BuildContext ctx) {
-                            return groohaa.map((g) {
-                              return PopupMenuItem(
-                                textStyle: TextStyle(
-                                  color: p.groupp.map((x) {
-                                    return x.name;
-                                  }).contains(g.name)
-                                      ? Colors.tealAccent[700]
-                                      : Colors.black,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    SizedBox(
-                                      width: MediaQuery.of(context).size.width *
-                                          0.25,
-                                      child: Text(
-                                        g.name,
-                                        softWrap: true,
-                                        textDirection: TextDirection.rtl,
-                                        overflow: TextOverflow.ellipsis,
+                            itemBuilder: (BuildContext ctx) {
+                              return groohaa.map((g) {
+                                return PopupMenuItem(
+                                  textStyle: TextStyle(
+                                    color: p.groupp.map((x) {
+                                      return x.name;
+                                    }).contains(g.name)
+                                        ? Colors.tealAccent[700]
+                                        : Colors.black,
+                                  ),
+                                  value: [p, g],
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      SizedBox(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.25,
+                                        child: Text(
+                                          g.name,
+                                          softWrap: true,
+                                          textDirection: TextDirection.rtl,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       ),
-                                    ),
-                                    Checkbox(
-                                      materialTapTargetSize:
-                                          MaterialTapTargetSize.shrinkWrap,
-                                      visualDensity: VisualDensity.compact,
-                                      onChanged: (_) {},
-                                      // checkColor: Colors.tealAccent[700],
-                                      activeColor: Colors.tealAccent[700],
-                                      value: p.groupp.map((x) {
-                                        return x.name;
-                                      }).contains(g.name),
-                                    ),
-                                  ],
+                                      Checkbox(
+                                        materialTapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
+                                        visualDensity: VisualDensity.compact,
+                                        onChanged: (_) {},
+                                        // checkColor: Colors.tealAccent[700],
+                                        activeColor: Colors.tealAccent[700],
+                                        value: p.groupp.map((x) {
+                                          return x.name;
+                                        }).contains(g.name),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList();
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 4),
+                              child: Icon(Icons.keyboard_arrow_down_outlined),
+                            ),
+                            // value: _value,
+                            // items: [
+                            //   DropdownMenuItem(
+                            //     child: Text("بدون گروه"),
+                            //   ),
+                            //   ...groohaa.map((g) {
+                            //     return DropdownMenuItem(
+                            //         child: Text(g.name),
+                            //         value: "${p.name}${g.name}",
+                            //         onTap: () {
+                            //           Provider.of<Afrad>(context).editGroup(p, g);
+                            //         });
+                            //   })
+                            // ],
+                          ),
+                          IconButton(
+                            padding: const EdgeInsets.all(0),
+                            visualDensity: VisualDensity.compact,
+                            tooltip: "حذف فرد",
+                            icon: Icon(
+                              Icons.delete,
+                              color: Colors.red[900],
+                            ),
+                            onPressed: () {
+                              Provider.of<Afrad>(context, listen: false)
+                                  .removefromlist(p);
+                              ScaffoldMessenger.of(context)
+                                  .hideCurrentSnackBar();
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: const Text(""),
+                                action: SnackBarAction(
+                                  label: "برگشت",
+                                  onPressed: () {
+                                    Provider.of<Afrad>(context, listen: false)
+                                        .addtolist(p);
+                                  },
                                 ),
-                                value: [p, g],
+                              ));
+                            },
+                          ),
+                          IconButton(
+                            visualDensity: VisualDensity.compact,
+                            tooltip: "ویرایش فرد",
+                            icon: const Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              showModalBottomSheet(
+                                context: context,
+                                // isDismissible: true,
+                                builder: (context) => ModalBAfrad(
+                                  isedit: true,
+                                  oldPerson: p,
+                                ),
                               );
-                            }).toList();
-                          },
-                          // value: _value,
-                          // items: [
-                          //   DropdownMenuItem(
-                          //     child: Text("بدون گروه"),
-                          //   ),
-                          //   ...groohaa.map((g) {
-                          //     return DropdownMenuItem(
-                          //         child: Text(g.name),
-                          //         value: "${p.name}${g.name}",
-                          //         onTap: () {
-                          //           Provider.of<Afrad>(context).editGroup(p, g);
-                          //         });
-                          //   })
-                          // ],
-                        ),
-                        IconButton(
-                          padding: EdgeInsets.all(0),
-                          visualDensity: VisualDensity.compact,
-                          tooltip: "حذف فرد",
-                          icon: Icon(
-                            Icons.delete,
-                            color: Colors.red[900],
+                            },
                           ),
-                          onPressed: () {
-                            Provider.of<Afrad>(context, listen: false)
-                                .removefromlist(p);
-                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text(""),
-                              action: SnackBarAction(
-                                label: "برگشت",
-                                onPressed: () {
-                                  Provider.of<Afrad>(context, listen: false)
-                                      .addtolist(p);
-                                },
-                              ),
-                            ));
-                          },
-                        ),
-                        IconButton(
-                          visualDensity: VisualDensity.compact,
-                          tooltip: "ویرایش فرد",
-                          icon: Icon(
-                            Icons.edit,
-                            color: Colors.white,
+                          IconButton(
+                            visualDensity: VisualDensity.compact,
+                            tooltip: "ارسال پیامک",
+                            icon: const Icon(
+                              Icons.sms,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              launchUrl(Uri.parse('sms:${p.phone}?body='));
+                            },
                           ),
-                          onPressed: () {
-                            showModalBottomSheet(
-                              context: context,
-                              // isDismissible: true,
-                              builder: (context) => ModalBAfrad(
-                                isedit: true,
-                                oldPerson: p,
-                              ),
-                            );
-                          },
-                        ),
-                        IconButton(
-                          visualDensity: VisualDensity.compact,
-                          tooltip: "ارسال پیامک",
-                          icon: Icon(
-                            Icons.sms,
-                            color: Colors.white,
+                          IconButton(
+                            visualDensity: VisualDensity.compact,
+                            tooltip: "تماس",
+                            icon: const Icon(
+                              Icons.call,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              launchUrl(Uri.parse('tel://${p.phone}'));
+                            },
                           ),
-                          onPressed: () {
-                            launchUrl(Uri.parse('sms:${p.phone}?body='));
-                          },
-                        ),
-                        IconButton(
-                          visualDensity: VisualDensity.compact,
-                          tooltip: "تماس",
-                          icon: Icon(
-                            Icons.call,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            launchUrl(Uri.parse('tel://${p.phone}'));
-                          },
-                        ),
-                      ],
-                      mainAxisAlignment: MainAxisAlignment.start,
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  );
+                }).toList(),
+              ),
             ),
-          );
+    );
   }
 }
 
 class ModalBAfrad extends StatefulWidget {
-  ModalBAfrad({required this.isedit, required this.oldPerson});
+  const ModalBAfrad({super.key, required this.isedit, required this.oldPerson});
   final bool isedit;
   final Person oldPerson;
 
   @override
-  _ModalBAfradState createState() => _ModalBAfradState();
+  ModalBAfradState createState() => ModalBAfradState();
 }
 
-class _ModalBAfradState extends State<ModalBAfrad> {
+class ModalBAfradState extends State<ModalBAfrad> {
   String? enname;
   String? enphone;
   bool isinit = true;
@@ -234,7 +246,7 @@ class _ModalBAfradState extends State<ModalBAfrad> {
       enphone = widget.oldPerson.phone;
       isinit = false;
     }
-    bool _formKey = false;
+    bool formKey = false;
     List<String> listP = Provider.of<Afrad>(context).afradd.map((p) {
       return p.name;
     }).toList();
@@ -258,7 +270,7 @@ class _ModalBAfradState extends State<ModalBAfrad> {
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: Form(
-          // key: _formkey,
+          // key: formkey,
           child: SingleChildScrollView(
             child: Column(
               children: [
@@ -272,27 +284,27 @@ class _ModalBAfradState extends State<ModalBAfrad> {
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       validator: (str) {
                         if ((listP.contains(str) && !widget.isedit)) {
-                          _formKey = false;
+                          formKey = false;
                           return "نام تکراری";
                         } else if (widget.isedit) {
                           if (listP.where((pp) {
                             return pp != widget.oldPerson.name;
                           }).contains(str)) {
-                            _formKey = false;
+                            formKey = false;
                             return "نام از قبل موجود است";
                           } else {
-                            _formKey = true;
+                            formKey = true;
                             return null;
                           }
                         } else if (str == null) {
-                          _formKey = false;
+                          formKey = false;
                           return "نام را وارد کنید";
                         } else {
-                          _formKey = true;
+                          formKey = true;
                           return null;
                         }
                       },
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           fillColor: Colors.blue,
                           labelText: "نام",
                           hintStyle: TextStyle()),
@@ -308,10 +320,10 @@ class _ModalBAfradState extends State<ModalBAfrad> {
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     validator: (str) {
                       if (str!.length != 11 || int.tryParse(str) == null) {
-                        _formKey = false;
+                        formKey = false;
                         return "شماره تلفن اشتباه است";
                       } else {
-                        _formKey = true;
+                        formKey = true;
                         return null;
                       }
                     },
@@ -321,7 +333,7 @@ class _ModalBAfradState extends State<ModalBAfrad> {
                     keyboardType: TextInputType.phone,
                     decoration: InputDecoration(
                         suffixIcon: IconButton(
-                            icon: Icon(Icons.perm_contact_cal),
+                            icon: const Icon(Icons.perm_contact_cal),
                             onPressed: () async {
                               // openContactBook().then((x) {
                               //   if (x.contains("+98")) {
@@ -336,9 +348,9 @@ class _ModalBAfradState extends State<ModalBAfrad> {
                               String x;
                               x = contact.phoneNumber!.number!;
                               if (x.contains("+98")) {
-                                x = "0" + x.split("+98")[1];
+                                x = "0${x.split("+98")[1]}";
                               }
-                              x = x.replaceAll(new RegExp(r'-'), '');
+                              x = x.replaceAll(RegExp(r'-'), '');
 
                               phonecon.text = x;
                               enphone = x;
@@ -346,8 +358,8 @@ class _ModalBAfradState extends State<ModalBAfrad> {
                         fillColor: Colors.blue,
                         alignLabelWithHint: true,
                         labelText: "شماره تلفن",
-                        labelStyle: TextStyle(),
-                        hintStyle: TextStyle()),
+                        labelStyle: const TextStyle(),
+                        hintStyle: const TextStyle()),
                     onChanged: (phone) {
                       enphone = phone;
                     },
@@ -358,8 +370,9 @@ class _ModalBAfradState extends State<ModalBAfrad> {
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
                     // child: Text("ذخیره کردن"),
-                    child:
-                        widget.isedit ? Text("ذخیره کردن") : Text("اضافه کردن"),
+                    child: widget.isedit
+                        ? const Text("ذخیره کردن")
+                        : const Text("اضافه کردن"),
                     onPressed: () {
                       if (widget.isedit && enname == null) {
                         enname = widget.oldPerson.name;
@@ -368,7 +381,7 @@ class _ModalBAfradState extends State<ModalBAfrad> {
                         enphone = widget.oldPerson.phone;
                       }
                       Person newP = Person(enname!, enphone!, []);
-                      if (_formKey) {
+                      if (formKey) {
                         widget.isedit
                             ? Provider.of<Afrad>(context, listen: false)
                                 .updatefromlist(newP, widget.oldPerson, context)
@@ -377,7 +390,7 @@ class _ModalBAfradState extends State<ModalBAfrad> {
 
                         Navigator.of(context).pop();
                       } else {
-                        FocusScope.of(context).requestFocus(new FocusNode());
+                        FocusScope.of(context).requestFocus(FocusNode());
                       }
                     },
                   ),

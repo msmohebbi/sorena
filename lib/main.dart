@@ -11,10 +11,12 @@ import 'index.dart';
 void main() async {
   var dbman = DataBaseMan();
   await dbman.firstInit();
-  runApp(MainApp());
+  runApp(const MainApp());
 }
 
 class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -34,7 +36,7 @@ class MainApp extends StatelessWidget {
       ],
       child: MaterialApp(
         theme: ThemeData(fontFamily: 'IRANYekan'),
-        home: MyScaffold(),
+        home: const MyScaffold(),
         debugShowCheckedModeBanner: false,
       ),
     );
@@ -42,16 +44,16 @@ class MainApp extends StatelessWidget {
 }
 
 class MyScaffold extends StatefulWidget {
-  MyScaffold({Key? key}) : super(key: key);
+  const MyScaffold({Key? key}) : super(key: key);
   @override
-  _MyScaffoldState createState() => _MyScaffoldState();
+  MyScaffoldState createState() => MyScaffoldState();
 }
 
-class _MyScaffoldState extends State<MyScaffold> {
+class MyScaffoldState extends State<MyScaffold> {
   List<Widget> mainWidgets = [
-    MainScreen(),
-    AfradScreen(),
-    GroupsScreen(),
+    const MainScreen(),
+    const AfradScreen(),
+    const GroupsScreen(),
   ];
   List<Widget?> mainModal = [
     null,
@@ -66,8 +68,8 @@ class _MyScaffoldState extends State<MyScaffold> {
   ];
   List<Icon?> mainIcon = [
     null,
-    Icon(Icons.person_add),
-    Icon(Icons.group_add),
+    const Icon(Icons.person_add),
+    const Icon(Icons.group_add),
   ];
 
   // @override
@@ -92,7 +94,7 @@ class _MyScaffoldState extends State<MyScaffold> {
           centerTitle: true,
           leading: 0 < mainIndex && mainIndex < 3
               ? IconButton(
-                  icon: Icon(Icons.add),
+                  icon: const Icon(Icons.add),
                   onPressed: () {
                     showModalBottomSheet(
                         context: context,
@@ -108,11 +110,11 @@ class _MyScaffoldState extends State<MyScaffold> {
                 : Provider.of<Index>(context).index == 1
                     ? "مدیریت افراد"
                     : "مدیریت گروه ها",
-            style: TextStyle(color: Colors.white, fontSize: 16),
+            style: const TextStyle(color: Colors.white, fontSize: 16),
             textAlign: TextAlign.right,
           ),
           bottom: mainIndex == 0 &&
-                  Provider.of<Grooha>(context).grooha.length != 0
+                  Provider.of<Grooha>(context).grooha.isNotEmpty
               ? TabBar(
                   isScrollable: true,
                   tabs: [
@@ -138,7 +140,7 @@ class _MyScaffoldState extends State<MyScaffold> {
                     Container(
                       height: AppBar().preferredSize.height,
                       color: Colors.grey[800],
-                      child: Center(
+                      child: const Center(
                         child: Text(
                           "سورنا",
                           textAlign: TextAlign.right,
@@ -158,7 +160,7 @@ class _MyScaffoldState extends State<MyScaffold> {
                       child: ListTile(
                         tileColor:
                             mainIndex == 0 ? Colors.grey[200] : Colors.white,
-                        title: Text(
+                        title: const Text(
                           "صفحه اصلی",
                           textDirection: TextDirection.rtl,
                           style: TextStyle(
@@ -184,7 +186,7 @@ class _MyScaffoldState extends State<MyScaffold> {
                       child: ListTile(
                         tileColor:
                             mainIndex == 1 ? Colors.grey[200] : Colors.white,
-                        title: Text(
+                        title: const Text(
                           "مدیریت افراد",
                           textDirection: TextDirection.rtl,
                           style: TextStyle(
@@ -210,7 +212,7 @@ class _MyScaffoldState extends State<MyScaffold> {
                       child: ListTile(
                         tileColor:
                             mainIndex == 2 ? Colors.grey[200] : Colors.white,
-                        title: Text(
+                        title: const Text(
                           "مدیریت گروه ها",
                           textDirection: TextDirection.rtl,
                           style: TextStyle(
@@ -246,11 +248,22 @@ class _MyScaffoldState extends State<MyScaffold> {
                 ),
                 TextButton(
                   onPressed: () {
-                    launchUrl(Uri.parse("http://www.msmcode.ir"));
+                    var url = Uri(
+                      scheme: "https",
+                      host: "www.linkedin.com",
+                      path: "in/msmohebbi/",
+                    );
+                    launchUrl(
+                      url,
+                      mode: LaunchMode.externalApplication,
+                    );
                   },
                   child: Text(
-                    "© 2022 Sorena App By @msmohebbi76, All rights reserved",
-                    style: TextStyle(fontSize: 12),
+                    "© 2023 Sorena App By @msmohebbi76\n All rights reserved",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.tealAccent[700],
+                    ),
                   ),
                 )
               ],
@@ -262,7 +275,7 @@ class _MyScaffoldState extends State<MyScaffold> {
             ? FloatingActionButton(
                 backgroundColor: Colors.tealAccent[700],
                 // elevation: 20,
-                shape: CircleBorder(
+                shape: const CircleBorder(
                     side: BorderSide(color: Colors.white38, width: 1)),
                 onPressed: () {
                   showModalBottomSheet(
@@ -271,7 +284,8 @@ class _MyScaffoldState extends State<MyScaffold> {
                       builder: (context) =>
                           mainModal[mainIndex] ?? Container());
                 },
-                child: mainIcon[mainIndex])
+                child: mainIcon[mainIndex],
+              )
             : null,
       ),
     );

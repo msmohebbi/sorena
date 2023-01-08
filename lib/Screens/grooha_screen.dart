@@ -6,171 +6,182 @@ import '../Models/afradc.dart';
 import '../index.dart';
 
 class GroupsScreen extends StatefulWidget {
+  const GroupsScreen({super.key});
+
   @override
-  _GroupsScreenState createState() => _GroupsScreenState();
+  GroupsScreenState createState() => GroupsScreenState();
 }
 
-class _GroupsScreenState extends State<GroupsScreen> {
+class GroupsScreenState extends State<GroupsScreen> {
   @override
   Widget build(BuildContext context) {
     List<Group> number2 = Provider.of<Grooha>(context).grooha;
-    return number2.length == 0
-        ? Center(
-            child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "گروهی برای نمایش وجود ندارد",
-                style: TextStyle(fontSize: 16),
-              ),
-              Text(
-                "برای ساخت گروه روی دکمه زیر کلیک کنید",
-                style: TextStyle(fontSize: 10),
-              ),
-            ],
-          ))
-        : Container(
-            child: SingleChildScrollView(
-              physics: BouncingScrollPhysics(),
+    return WillPopScope(
+      onWillPop: () async {
+        Provider.of<Index>(context, listen: false).changeIndex(0);
+        return false;
+      },
+      child: number2.isEmpty
+          ? Center(
               child: Column(
-                children: number2.map((g) {
-                  // int gindex = number2.indexOf(g);
-                  return Container(
-                    margin: EdgeInsets.only(bottom: 1),
-                    child: ListTile(
-                      tileColor: Colors.tealAccent[700],
-                      trailing: Text(
-                        g.name,
-                        textAlign: TextAlign.right,
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                      title: Row(
-                        children: [
-                          IconButton(
-                            tooltip: "حذف گروه",
-                            icon: Icon(
-                              Icons.delete,
-                              color: Colors.red[900],
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Text(
+                  "گروهی برای نمایش وجود ندارد",
+                  style: TextStyle(fontSize: 16),
+                ),
+                Text(
+                  "برای ساخت گروه روی دکمه زیر کلیک کنید",
+                  style: TextStyle(fontSize: 10),
+                ),
+              ],
+            ))
+          : ReorderableListView(
+              onReorder: (oldIndex, newIndex) {
+                if (oldIndex < newIndex) {
+                  newIndex -= 1;
+                }
+                var newG = number2;
+                var reo = newG.removeAt(oldIndex);
+                newG.insert(newIndex, reo);
+                Provider.of<Grooha>(context, listen: false).reOrderList(newG);
+              },
+              children: number2.map((g) {
+                // int gindex = number2.indexOf(g);
+                return ListTile(
+                  key: Key(g.name.toString()),
+                  tileColor: Colors.tealAccent[700],
+                  trailing: Text(
+                    g.name,
+                    textAlign: TextAlign.right,
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      ReorderableDragStartListener(
+                          index: number2.indexOf(g),
+                          child: const Icon(
+                            Icons.menu,
+                          )),
+                      IconButton(
+                        tooltip: "حذف گروه",
+                        icon: Icon(
+                          Icons.delete,
+                          color: Colors.red[900],
+                        ),
+                        onPressed: () {
+                          Provider.of<Grooha>(context, listen: false)
+                              .removefromlist(g);
+                          Provider.of<Afrad>(context, listen: false)
+                              .updateLocal();
+                          Provider.of<Labelha>(context, listen: false)
+                              .updateLocal();
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: const Text(""),
+                            action: SnackBarAction(
+                              label: "برگشت",
+                              onPressed: () {
+                                Provider.of<Grooha>(context, listen: false)
+                                    .addtolist(g);
+                                Provider.of<Afrad>(context, listen: false)
+                                    .updateLocal();
+                                Provider.of<Labelha>(context, listen: false)
+                                    .updateLocal();
+                              },
                             ),
-                            onPressed: () {
-                              Provider.of<Grooha>(context, listen: false)
-                                  .removefromlist(g);
+                          ));
+                        },
+                      ),
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        tooltip: "ویرایش گروه",
+                        icon: const Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            // isDismissible: true,
+                            builder: (context) => ModalBGrooha(
+                              isedit: true,
+                              oldGroup: g,
+                            ),
+                          );
+                        },
+                      ),
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        tooltip: "ارسال پیامک گروهی",
+                        icon: const Icon(
+                          Icons.message,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          final afrads =
                               Provider.of<Afrad>(context, listen: false)
-                                  .updateLocal();
-                              Provider.of<Labelha>(context, listen: false)
-                                  .updateLocal();
-                              ScaffoldMessenger.of(context)
-                                  .hideCurrentSnackBar();
-
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                content: Text(""),
-                                action: SnackBarAction(
-                                  label: "برگشت",
-                                  onPressed: () {
-                                    Provider.of<Grooha>(context, listen: false)
-                                        .addtolist(g);
-                                    Provider.of<Afrad>(context, listen: false)
-                                        .updateLocal();
-                                    Provider.of<Labelha>(context, listen: false)
-                                        .updateLocal();
-                                  },
-                                ),
-                              ));
-                            },
-                          ),
-                          IconButton(
-                            visualDensity: VisualDensity.compact,
-                            tooltip: "ویرایش گروه",
-                            icon: Icon(
-                              Icons.edit,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              showModalBottomSheet(
-                                context: context,
-                                // isDismissible: true,
-                                builder: (context) => ModalBGrooha(
-                                  isedit: true,
-                                  oldGroup: g,
-                                ),
-                              );
-                            },
-                          ),
-                          IconButton(
-                            visualDensity: VisualDensity.compact,
-                            tooltip: "ارسال پیامک گروهی",
-                            icon: Icon(
-                              Icons.message,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              final afrads =
-                                  Provider.of<Afrad>(context, listen: false)
-                                      .afradd
-                                      .where((x) {
-                                return x.groupp.map((ggg) {
-                                  return ggg.name;
-                                }).contains(g.name);
-                              });
-                              if (afrads.length > 0) {
-                                final phones = afrads.map((ppp) {
-                                  return ppp.phone;
-                                }).toList();
-                                launchUrl(Uri.parse('sms:$phones?body='));
-                              } else {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                  content: Text(""),
-                                  action: SnackBarAction(
-                                    label: "فردی به این گروه اضافه نشده است",
-                                    onPressed: () {},
-                                    textColor: Colors.white,
-                                  ),
-                                ));
-                              }
-                            },
-                          ),
-                          IconButton(
-                            visualDensity: VisualDensity.compact,
-                            tooltip: "نمایش افراد گروه",
-                            icon: Icon(
-                              Icons.remove_red_eye_rounded,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              Provider.of<Index>(context, listen: false)
-                                  .changeIndex(0);
-                              final gp =
-                                  Provider.of<Grooha>(context, listen: false)
-                                      .grooha;
-                              int ind = (gp.length - 1) - gp.indexOf(g);
-
-                              DefaultTabController.of(context)!.animateTo(ind);
-                            },
-                          ),
-                        ],
-                        mainAxisAlignment: MainAxisAlignment.start,
+                                  .afradd
+                                  .where((x) {
+                            return x.groupp.map((ggg) {
+                              return ggg.name;
+                            }).contains(g.name);
+                          });
+                          if (afrads.isNotEmpty) {
+                            final phones = afrads.map((ppp) {
+                              return ppp.phone;
+                            }).toList();
+                            launchUrl(Uri.parse('sms:$phones?body='));
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: const Text(""),
+                              action: SnackBarAction(
+                                label: "فردی به این گروه اضافه نشده است",
+                                onPressed: () {},
+                                textColor: Colors.white,
+                              ),
+                            ));
+                          }
+                        },
                       ),
-                    ),
-                  );
-                }).toList(),
-              ),
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        tooltip: "نمایش افراد گروه",
+                        icon: const Icon(
+                          Icons.remove_red_eye_rounded,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          Provider.of<Index>(context, listen: false)
+                              .changeIndex(0);
+                          final gp = Provider.of<Grooha>(context, listen: false)
+                              .grooha;
+                          int ind = (gp.length - 1) - gp.indexOf(g);
+
+                          DefaultTabController.of(context)!.animateTo(ind);
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
             ),
-          );
+    );
   }
 }
 
 class ModalBGrooha extends StatefulWidget {
-  ModalBGrooha({required this.isedit, required this.oldGroup});
+  const ModalBGrooha({super.key, required this.isedit, required this.oldGroup});
   final bool isedit;
   final Group oldGroup;
 
   @override
-  _ModalBGroohaState createState() => _ModalBGroohaState();
+  ModalBGroohaState createState() => ModalBGroohaState();
 }
 
-class _ModalBGroohaState extends State<ModalBGrooha> {
+class ModalBGroohaState extends State<ModalBGrooha> {
   String? enname;
   bool isinit = true;
 
@@ -180,9 +191,9 @@ class _ModalBGroohaState extends State<ModalBGrooha> {
       enname = widget.oldGroup.name;
       isinit = false;
     }
-    bool _formKey = false;
+    bool formKey = false;
 
-    List<String> _listG = Provider.of<Grooha>(context).grooha.map((g) {
+    List<String> listG = Provider.of<Grooha>(context).grooha.map((g) {
       return g.name;
     }).toList();
     return Container(
@@ -198,21 +209,21 @@ class _ModalBGroohaState extends State<ModalBGrooha> {
                   padding: const EdgeInsets.all(8.0),
                   child: TextFormField(
                       validator: (str) {
-                        if (_listG.contains(str) && widget.isedit) {
-                          _formKey = false;
+                        if (listG.contains(str) && widget.isedit) {
+                          formKey = false;
                           return "نام تکراری";
                         } else if (widget.isedit) {
-                          if (_listG.where((gg) {
+                          if (listG.where((gg) {
                             return gg != widget.oldGroup.name;
                           }).contains(str)) {
-                            _formKey = false;
+                            formKey = false;
                             return "نام از قبل موجود است";
                           } else {
-                            _formKey = true;
+                            formKey = true;
                             return null;
                           }
                         } else {
-                          _formKey = true;
+                          formKey = true;
                           return null;
                         }
                       },
@@ -221,7 +232,7 @@ class _ModalBGroohaState extends State<ModalBGrooha> {
                       textInputAction: TextInputAction.done,
                       autofocus: true,
                       keyboardType: TextInputType.name,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           fillColor: Colors.blue,
                           labelText: "نام",
                           hintStyle: TextStyle()),
@@ -232,10 +243,11 @@ class _ModalBGroohaState extends State<ModalBGrooha> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
-                    child:
-                        widget.isedit ? Text("ذخیره کردن") : Text("اضافه کردن"),
+                    child: widget.isedit
+                        ? const Text("ذخیره کردن")
+                        : const Text("اضافه کردن"),
                     onPressed: () {
-                      if (_formKey) {
+                      if (formKey) {
                         widget.isedit
                             ? Provider.of<Grooha>(context, listen: false)
                                 .updatefromlist(

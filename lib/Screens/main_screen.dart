@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
@@ -7,11 +9,13 @@ import '../Models/afradc.dart';
 import '../index.dart';
 
 class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
   @override
-  _MainScreenState createState() => _MainScreenState();
+  MainScreenState createState() => MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     // return Container(
@@ -32,12 +36,13 @@ class _MainScreenState extends State<MainScreen> {
     //     ],
     //   ),
     // );
-    return Provider.of<Grooha>(context).grooha.length == 0
+    return Provider.of<Grooha>(context).grooha.isEmpty
         ? Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("از بخش مدیریت گروه ها، گروه مورد نظر خود را بسازید"),
+                const Text(
+                    "از بخش مدیریت گروه ها، گروه مورد نظر خود را بسازید"),
                 TextButton(
                   child: Text(
                     "رفتن به مدیریت گروه ها",
@@ -53,16 +58,27 @@ class _MainScreenState extends State<MainScreen> {
         : TabBarView(
             children: [
               ...(Provider.of<Grooha>(context).grooha.reversed.map((g) {
+                var cAfrad = Provider.of<Afrad>(context).afradd.where((p) {
+                  return p.groupp.where((gg) {
+                        return gg.name == g.name;
+                      }).length ==
+                      1;
+                });
                 return SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
+                  physics: const BouncingScrollPhysics(),
                   child: Column(
                     children: [
-                      ...Provider.of<Afrad>(context).afradd.where((p) {
-                        return p.groupp.where((gg) {
-                              return gg.name == g.name;
-                            }).length ==
-                            1;
-                      }).map((a) {
+                      if (cAfrad.isEmpty) ...[
+                        Container(
+                          height: MediaQuery.of(context).size.height / 4,
+                          child: Center(
+                            child: Text(
+                              "لیست افراد خالی می باشد",
+                            ),
+                          ),
+                        ),
+                      ],
+                      ...cAfrad.map((a) {
                         final agllist =
                             Provider.of<Labelha>(context).afradgroohatolabelha;
                         final thisagl = agllist.where((agl) {
@@ -91,14 +107,14 @@ class _MainScreenState extends State<MainScreen> {
                                       }).color,
                                 Colors.tealAccent[700]!,
                               ])),
-                          margin: EdgeInsets.only(bottom: 1),
+                          margin: const EdgeInsets.only(bottom: 1),
                           child: ListTile(
                             // tileColor: thisagl.isEmpty
                             //     ? Colors.tealAccent[700]
                             //     : labellist.firstWhere((ll) {
                             //         return thisagl.first["number"] == ll.number;
                             //       }).color,
-                            trailing: Container(
+                            trailing: SizedBox(
                               width: MediaQuery.of(context).size.width * 0.35,
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
@@ -110,29 +126,10 @@ class _MainScreenState extends State<MainScreen> {
                                   textBaseline: TextBaseline.alphabetic,
                                   children: [
                                     PopupMenuButton(
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 4),
-                                        child: Text(
-                                          "${a.groupp.length == 0 ? "" : a.groupp.where((gp) {
-                                              return gp.name != g.name;
-                                            }).map((x) {
-                                              return x.name;
-                                            })}",
-                                          softWrap: true,
-                                          overflow: TextOverflow.fade,
-                                          textAlign: TextAlign.right,
-                                          textDirection: TextDirection.rtl,
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.white
-                                                  .withOpacity(0.8)),
-                                        ),
-                                      ),
                                       tooltip: "اضافه کردن به گروه",
                                       // icon: ,
                                       onSelected: (value) {
-                                        print("ff");
+                                        log("ff");
                                         Provider.of<Afrad>(context,
                                                 listen: false)
                                             .addremovetoGroup(
@@ -154,6 +151,7 @@ class _MainScreenState extends State<MainScreen> {
                                                   ? Colors.tealAccent[700]
                                                   : Colors.black,
                                             ),
+                                            value: [a, g],
                                             child: Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.end,
@@ -176,9 +174,16 @@ class _MainScreenState extends State<MainScreen> {
                                                   materialTapTargetSize:
                                                       MaterialTapTargetSize
                                                           .shrinkWrap,
+
                                                   visualDensity:
                                                       VisualDensity.compact,
-                                                  onChanged: (_) {},
+                                                  onChanged: (_) {
+                                                    Provider.of<Afrad>(context,
+                                                            listen: false)
+                                                        .addremovetoGroup(
+                                                            a, g, context);
+                                                    Navigator.of(context).pop();
+                                                  },
                                                   // checkColor: Colors.tealAccent[700],
                                                   activeColor:
                                                       Colors.tealAccent[700],
@@ -188,19 +193,37 @@ class _MainScreenState extends State<MainScreen> {
                                                 ),
                                               ],
                                             ),
-                                            value: [a, g],
                                           );
                                         }).toList();
                                       },
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 4),
+                                        child: Text(
+                                          "${a.groupp.isEmpty ? "" : a.groupp.where((gp) {
+                                              return gp.name != g.name;
+                                            }).map((x) {
+                                              return x.name;
+                                            })}",
+                                          softWrap: true,
+                                          overflow: TextOverflow.fade,
+                                          textAlign: TextAlign.right,
+                                          textDirection: TextDirection.rtl,
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.white
+                                                  .withOpacity(0.8)),
+                                        ),
+                                      ),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 3,
                                     ),
                                     Text(
                                       a.name,
                                       textAlign: TextAlign.right,
                                       textDirection: TextDirection.rtl,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           fontSize: 16, color: Colors.white),
                                     ),
                                   ],
@@ -208,6 +231,7 @@ class _MainScreenState extends State<MainScreen> {
                               ),
                             ),
                             title: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 IconButton(
                                   tooltip: "حذف فرد از گروه",
@@ -222,7 +246,7 @@ class _MainScreenState extends State<MainScreen> {
                                 ),
                                 IconButton(
                                   tooltip: "ارسال پیامک",
-                                  icon: Icon(
+                                  icon: const Icon(
                                     Icons.sms,
                                     color: Colors.white,
                                   ),
@@ -233,7 +257,7 @@ class _MainScreenState extends State<MainScreen> {
                                 ),
                                 IconButton(
                                   tooltip: "تماس",
-                                  icon: Icon(
+                                  icon: const Icon(
                                     Icons.call,
                                     color: Colors.white,
                                   ),
@@ -242,12 +266,6 @@ class _MainScreenState extends State<MainScreen> {
                                   },
                                 ),
                                 PopupMenuButton(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 5, right: 1),
-                                    child: Icon(Icons.color_lens,
-                                        color: Colors.white),
-                                  ),
                                   tooltip: "اضافه کردن برچسب",
                                   // icon: ,
                                   onSelected: (value) {
@@ -256,7 +274,7 @@ class _MainScreenState extends State<MainScreen> {
                                             value[1] as Group, value[2] as int);
                                   },
                                   // color: Colors.red,
-                                  padding: EdgeInsets.all(0),
+                                  padding: const EdgeInsets.all(0),
                                   itemBuilder: (BuildContext ctx) {
                                     final labelha = Provider.of<Labelha>(
                                             context,
@@ -264,19 +282,23 @@ class _MainScreenState extends State<MainScreen> {
                                         .labelha;
                                     return labelha.map((l) {
                                       return PopupMenuItem(
+                                        value: [a, g, l.number],
                                         child: Icon(
                                           Icons.circle,
                                           color: labellist.firstWhere((ll) {
                                             return ll.number == l.number;
                                           }).color,
                                         ),
-                                        value: [a, g, l.number],
                                       );
                                     }).toList();
                                   },
+                                  child: const Padding(
+                                    padding: EdgeInsets.only(left: 5, right: 1),
+                                    child: Icon(Icons.color_lens,
+                                        color: Colors.white),
+                                  ),
                                 ),
                               ],
-                              mainAxisAlignment: MainAxisAlignment.start,
                             ),
                           ),
                         );
@@ -285,11 +307,11 @@ class _MainScreenState extends State<MainScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
-                            margin: EdgeInsets.all(5),
+                            margin: const EdgeInsets.all(5),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: Colors.grey[200],
-                              boxShadow: [
+                              boxShadow: const [
                                 BoxShadow(
                                     blurRadius: 10,
                                     spreadRadius: 3,
@@ -297,7 +319,7 @@ class _MainScreenState extends State<MainScreen> {
                               ],
                             ),
                             child: IconButton(
-                                icon: Icon(Icons.message_outlined),
+                                icon: const Icon(Icons.message_outlined),
                                 tooltip: "ارسال پیامک گروهی",
                                 onPressed: () {
                                   final afrads =
@@ -308,7 +330,7 @@ class _MainScreenState extends State<MainScreen> {
                                       return ggg.name;
                                     }).contains(g.name);
                                   });
-                                  if (afrads.length > 0) {
+                                  if (afrads.isNotEmpty) {
                                     final phones = afrads.map((ppp) {
                                       return ppp.phone;
                                     }).toList();
@@ -316,7 +338,7 @@ class _MainScreenState extends State<MainScreen> {
                                   } else {
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(SnackBar(
-                                      content: Text(""),
+                                      content: const Text(""),
                                       action: SnackBarAction(
                                         label:
                                             "فردی به این گروه اضافه نشده است",
@@ -328,11 +350,11 @@ class _MainScreenState extends State<MainScreen> {
                                 }),
                           ),
                           Container(
-                            margin: EdgeInsets.all(5),
+                            margin: const EdgeInsets.all(5),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: Colors.grey[200],
-                              boxShadow: [
+                              boxShadow: const [
                                 BoxShadow(
                                     blurRadius: 10,
                                     spreadRadius: 3,
@@ -341,9 +363,10 @@ class _MainScreenState extends State<MainScreen> {
                             ),
                             child: IconButton(
                                 tooltip: "ویرایش لیست",
-                                icon: Icon(Icons.library_add_check_outlined),
+                                icon: const Icon(
+                                    Icons.library_add_check_outlined),
                                 onPressed: () {
-                                  // print(g.name);
+                                  // log(g.name);
                                   showModalBottomSheet(
                                       context: context,
                                       isDismissible: true,
@@ -367,76 +390,73 @@ class _MainScreenState extends State<MainScreen> {
 }
 
 class ModalBAfradToGroup extends StatefulWidget {
-  ModalBAfradToGroup({required this.g});
+  const ModalBAfradToGroup({super.key, required this.g});
   final Group g;
 
   @override
-  _ModalBAfradToGroupState createState() => _ModalBAfradToGroupState();
+  ModalBAfradToGroupState createState() => ModalBAfradToGroupState();
 }
 
-class _ModalBAfradToGroupState extends State<ModalBAfradToGroup> {
+class ModalBAfradToGroupState extends State<ModalBAfradToGroup> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: ListView(
-        children: [
-          ...Provider.of<Afrad>(context).afradd.map((p) {
-            return InkWell(
-              onTap: () {
-                Provider.of<Afrad>(context, listen: false)
-                    .addremovetoGroup(p, widget.g, context);
-              },
-              child: ListTile(
-                tileColor: Colors.grey[100],
-                title: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  reverse: true,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Text(
-                        "${p.groupp.length == 0 ? "" : p.groupp.map((x) {
-                            return x.name;
-                          })}",
-                        softWrap: true,
-                        overflow: TextOverflow.fade,
-                        textAlign: TextAlign.right,
-                        textDirection: TextDirection.rtl,
-                        style: TextStyle(fontSize: 12, color: Colors.black),
-                      ),
-                      SizedBox(
-                        width: 3,
-                      ),
-                      Text(
-                        p.name,
-                        textAlign: TextAlign.right,
-                        textDirection: TextDirection.rtl,
-                        style: TextStyle(fontSize: 16, color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
-                trailing: Checkbox(
-                  activeColor: Colors.tealAccent[700],
-                  onChanged: (x) {
-                    // value = !value;
-                    Provider.of<Afrad>(context, listen: false)
-                        .addremovetoGroup(p, widget.g, context);
-                  },
-                  value: p.groupp.where((gg) {
-                            return gg.name == widget.g.name;
-                          }).length ==
-                          0
-                      ? false
-                      : true,
+    return ListView(
+      children: [
+        ...Provider.of<Afrad>(context).afradd.map((p) {
+          return InkWell(
+            onTap: () {
+              Provider.of<Afrad>(context, listen: false)
+                  .addremovetoGroup(p, widget.g, context);
+            },
+            child: ListTile(
+              tileColor: Colors.grey[100],
+              title: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                reverse: true,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      "${p.groupp.isEmpty ? "" : p.groupp.map((x) {
+                          return x.name;
+                        })}",
+                      softWrap: true,
+                      overflow: TextOverflow.fade,
+                      textAlign: TextAlign.right,
+                      textDirection: TextDirection.rtl,
+                      style: const TextStyle(fontSize: 12, color: Colors.black),
+                    ),
+                    const SizedBox(
+                      width: 3,
+                    ),
+                    Text(
+                      p.name,
+                      textAlign: TextAlign.right,
+                      textDirection: TextDirection.rtl,
+                      style: const TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ],
                 ),
               ),
-            );
-          }).toList()
-        ],
-      ),
+              trailing: Checkbox(
+                activeColor: Colors.tealAccent[700],
+                onChanged: (x) {
+                  // value = !value;
+                  Provider.of<Afrad>(context, listen: false)
+                      .addremovetoGroup(p, widget.g, context);
+                },
+                value: p.groupp.where((gg) {
+                  return gg.name == widget.g.name;
+                }).isEmpty
+                    ? false
+                    : true,
+              ),
+            ),
+          );
+        }).toList()
+      ],
     );
   }
 }
