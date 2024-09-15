@@ -35,7 +35,12 @@ class MainApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        theme: ThemeData(fontFamily: 'IRANYekan'),
+        theme: ThemeData(
+          fontFamily: 'IRANYekan',
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.greenAccent,
+          ),
+        ),
         home: const MyScaffold(),
         debugShowCheckedModeBanner: false,
       ),
@@ -44,7 +49,7 @@ class MainApp extends StatelessWidget {
 }
 
 class MyScaffold extends StatefulWidget {
-  const MyScaffold({Key? key}) : super(key: key);
+  const MyScaffold({super.key});
   @override
   MyScaffoldState createState() => MyScaffoldState();
 }
@@ -120,7 +125,12 @@ class MyScaffoldState extends State<MyScaffold> {
                   tabs: [
                     ...(Provider.of<Grooha>(context).grooha.reversed.map((g) {
                       return Tab(
-                        text: g.name,
+                        child: Text(
+                          g.name,
+                          style: const TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
                       );
                     })),
                     // Tab(
@@ -259,7 +269,9 @@ class MyScaffoldState extends State<MyScaffold> {
                     );
                   },
                   child: Text(
-                    "© 2023 Sorena App By @msmohebbi76\n All rights reserved",
+                    "© 2024 Sorena App By @msmohebbi76\n All rights reserved",
+                    textAlign: TextAlign.left,
+                    textDirection: TextDirection.ltr,
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.tealAccent[700],

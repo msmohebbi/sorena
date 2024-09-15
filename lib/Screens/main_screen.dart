@@ -69,9 +69,9 @@ class MainScreenState extends State<MainScreen> {
                   child: Column(
                     children: [
                       if (cAfrad.isEmpty) ...[
-                        Container(
+                        SizedBox(
                           height: MediaQuery.of(context).size.height / 4,
-                          child: Center(
+                          child: const Center(
                             child: Text(
                               "لیست افراد خالی می باشد",
                             ),
@@ -210,9 +210,10 @@ class MainScreenState extends State<MainScreen> {
                                           textAlign: TextAlign.right,
                                           textDirection: TextDirection.rtl,
                                           style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.white
-                                                  .withOpacity(0.8)),
+                                            fontSize: 12,
+                                            color:
+                                                Colors.white.withOpacity(0.8),
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -224,7 +225,9 @@ class MainScreenState extends State<MainScreen> {
                                       textAlign: TextAlign.right,
                                       textDirection: TextDirection.rtl,
                                       style: const TextStyle(
-                                          fontSize: 16, color: Colors.white),
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -302,7 +305,7 @@ class MainScreenState extends State<MainScreen> {
                             ),
                           ),
                         );
-                      }).toList(),
+                      }),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -455,7 +458,7 @@ class ModalBAfradToGroupState extends State<ModalBAfradToGroup> {
               ),
             ),
           );
-        }).toList()
+        })
       ],
     );
   }

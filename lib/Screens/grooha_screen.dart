@@ -16,16 +16,16 @@ class GroupsScreenState extends State<GroupsScreen> {
   @override
   Widget build(BuildContext context) {
     List<Group> number2 = Provider.of<Grooha>(context).grooha;
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (pop, _) async {
         Provider.of<Index>(context, listen: false).changeIndex(0);
-        return false;
       },
       child: number2.isEmpty
-          ? Center(
+          ? const Center(
               child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+              children: [
                 Text(
                   "گروهی برای نمایش وجود ندارد",
                   style: TextStyle(fontSize: 16),
@@ -160,7 +160,7 @@ class GroupsScreenState extends State<GroupsScreen> {
                               .grooha;
                           int ind = (gp.length - 1) - gp.indexOf(g);
 
-                          DefaultTabController.of(context)!.animateTo(ind);
+                          DefaultTabController.of(context).animateTo(ind);
                         },
                       ),
                     ],

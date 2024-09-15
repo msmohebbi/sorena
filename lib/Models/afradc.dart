@@ -48,8 +48,9 @@ class Afrad with ChangeNotifier {
     DataBaseMan dbman = DataBaseMan();
     dbman.updateAfrad(newp1, oldp1).then((x) {
       updateLocal();
-      Provider.of<Labelha>(context, listen: false)
-          .updateLocal(); // notifyListeners();
+      if (context.mounted) {
+        Provider.of<Labelha>(context, listen: false).updateLocal();
+      }
     });
   }
 
@@ -65,7 +66,9 @@ class Afrad with ChangeNotifier {
     DataBaseMan dbman = DataBaseMan();
     dbman.addDeleteAfradtoGrooha(p1, g1).then((_) {
       updateLocal();
-      Provider.of<Labelha>(context, listen: false).updateLocal();
+      if (context.mounted) {
+        Provider.of<Labelha>(context, listen: false).updateLocal();
+      }
     });
   }
 
@@ -111,7 +114,9 @@ class Grooha with ChangeNotifier {
     DataBaseMan dbman = DataBaseMan();
     dbman.updateGrooha(newg1, oldg1).then((x) {
       updateLocal();
-      Provider.of<Labelha>(context, listen: false).updateLocal();
+      if (context.mounted) {
+        Provider.of<Labelha>(context, listen: false).updateLocal();
+      }
       // Afrad().updateLocal();
       // Afrad().notifyListeners();
       // notifyListeners();

@@ -11,7 +11,7 @@ import '../Models/afradc.dart';
 import '../index.dart';
 
 class AfradScreen extends StatefulWidget {
-  const AfradScreen({Key? key}) : super(key: key);
+  const AfradScreen({super.key});
   @override
   AfradScreenState createState() => AfradScreenState();
 }
@@ -23,16 +23,16 @@ class AfradScreenState extends State<AfradScreen> {
     var groohaa = Provider.of<Grooha>(context).grooha;
 
     // ignore: prefer_is_empty
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (pop, _) async {
         Provider.of<Index>(context, listen: false).changeIndex(0);
-        return false;
       },
-      child: number1.length == 0
-          ? Center(
+      child: number1.isEmpty
+          ? const Center(
               child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+              children: [
                 Text(
                   "فردی برای نمایش وجود ندارد",
                   style: TextStyle(fontSize: 16),
